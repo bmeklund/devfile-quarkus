@@ -20,6 +20,27 @@ components:
   - name: dev
     container:
       image: registry.redhat.io/devspaces/udi-rhel8@sha256:aa39ede33bcbda6aa2723d271c79ab8d8fd388c7dfcbc3d4ece745b7e9c84193
+  - name: image-build
+    image:
+      imageName: java-quarkus-image:latest
+      dockerfile:
+        uri: src/main/docker/Dockerfile.jvm.staged
+        buildContext: .
+        rootRequired: false
+  - name: kubernetes-deploy
+    attributes:
+      deployment/replicas: 1
+      deployment/cpuLimit: '100m'
+      deployment/cpuRequest: 10m
+      deployment/memoryLimit: 250Mi
+      deployment/memoryRequest: 100Mi
+      deployment/container-port: 8081
+    kubernetes:
+      uri: deploy.yaml
+      endpoints:
+        - name: http-8081
+          targetPort: 8081
+          path: /
   - name: tools
     container:
       image: registry.access.redhat.com/ubi8/openjdk-17
@@ -41,27 +62,6 @@ components:
   - name: m2
     volume:
       size: 3Gi
-  - name: image-build
-    image:
-      imageName: quarkus-image:latest
-      dockerfile:
-        uri: docker/Dockerfile
-        buildContext: .
-        rootRequired: false 
-  - name: kubernetes-deploy
-    attributes:
-      deployment/replicas: 1
-      deployment/cpuLimit: '100m'
-      deployment/cpuRequest: 10m
-      deployment/memoryLimit: 300Mi
-      deployment/memoryRequest: 180Mi
-      deployment/container-port: 8081
-    kubernetes:
-      uri: deploy.yaml
-      endpoints:
-        - name: http-8081
-          targetPort: 8081
-          path: /
 commands:
   - id: init-compile
     exec:
