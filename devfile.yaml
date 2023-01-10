@@ -77,15 +77,12 @@ commands:
         kind: run
         isDefault: true
       workingDir: ${PROJECT_SOURCE}
-  - id: dev-debug
-    exec:
-      component: tools
-      commandLine: 'mvn -Dmaven.repo.local=/home/user/.m2/repository quarkus:dev -Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -Ddebug=${DEBUG_PORT}'
-      hotReloadCapable: true
-      group:
-        kind: debug
-        isDefault: true
-      workingDir: ${PROJECT_SOURCE}
+ - id: build-image
+    apply:
+      component: image-build
+  - id: deployk8s
+    apply:
+      component: kubernetes-deploy
   - id: deploy
     composite:
       commands:
