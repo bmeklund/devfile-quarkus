@@ -12,10 +12,37 @@ metadata:
   language: "java"
   attributes:
     alpha.dockerimage-port: 8081
-parent:
-  id: java-quarkus
-  registryUrl: "https://registry.devfile.io"
+starterProjects:
+  - name: quarkus
+    git:
+      remotes:
+        origin: https://github.com/bmeklund/devfile-quarkus
 components:
+  - name: tools
+    container:
+      image: registry.redhat.io/devspaces/udi-rhel8:3.3 
+      env:
+        - name: QUARKUS_HTTP_HOST
+          value: 0.0.0.0
+      endpoints:
+        - exposure: none
+          name: debug
+          protocol: tcp
+          targetPort: 5005
+        - exposure: public
+          name: hello-greeting-endpoint
+          protocol: http
+          targetPort: 8080
+          path: /hello/greeting/devspaces-user
+      volumeMounts:
+        - name: m2
+          path: /home/user/.m2
+      memoryLimit: 4G
+      mountSources: true
+  - name: m2
+    volume:
+      size: 1G
+commands:
   - name: outerloop-build
     image:
       imageName: java-quarkus-image:latest
