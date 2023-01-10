@@ -17,7 +17,11 @@ objects:
         kind: ImageStreamTag
         name: ${NAME}:latest
     source:
-      contextDir: .
+      type: "Binary",
+      binary: {
+        "asFile": ""
+      }, 
+      contextDir: ${CONTEXT_DIR}
     strategy:
       dockerStrategy:
         dockerfilePath: docker/Dockerfile
