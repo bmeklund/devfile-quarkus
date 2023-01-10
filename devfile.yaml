@@ -1,4 +1,4 @@
-schemaVersion: 2.1.0
+schemaVersion: 2.2.0
 metadata:
   name: java-quarkus
   version: 1.3.0
@@ -42,13 +42,12 @@ components:
     volume:
       size: 3Gi
   - name: image-build
-    container:
-      image:
-        dockerfile:
-          uri: docker/Dockerfile
-          buildContext: .
-          rootRequired: false
-        imageName: quarkus-image:latest     
+    image:
+      imageName: quarkus-image:latest
+      dockerfile:
+        uri: docker/Dockerfile
+        buildContext: .
+        rootRequired: false 
   - name: kubernetes-deploy
     attributes:
       deployment/replicas: 1
