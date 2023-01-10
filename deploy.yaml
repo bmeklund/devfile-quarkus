@@ -1,38 +1,120 @@
-kind: Deployment
-apiVersion: apps/v1
-metadata:
-  name: my-java-quarkus
-spec:
-  replicas: 1
-  selector:
-    matchLabels:
-      app: java-quarkus-app
-  template:
-    metadata:
-      labels:
-        app: java-quarkus-app
-    spec:
-      containers:
-        - name: my-java-quarkus
-          image: java-quarkus-image:latest
+apiVersion: template.openshift.io/v1
+kind: Template
+labels:
+  template: hello-quarkus
+objects:
+- apiVersion: build.openshift.io/v1
+  kind: BuildConfig
+  metadata:
+    labels:
+      app: ${NAME}
+      app.kubernetes.io/component: ${NAME}
+      app.kubernetes.io/instance: ${NAME}
+    name: ${NAME}
+  spec:
+    output:
+      to:
+        kind: ImageStreamTag
+        name: ${NAME}:latest
+    source:
+      contextDir: .
+    strategy:
+      dockerStrategy:
+        dockerfilePath: docker/Dockerfile
+        from:
+          kind: ImageStreamTag
+          name: quay.io/devfile/maven:3.8.1-openjdk-17-slim
+          namespace: user1-devspaces
+      type: Docker
+    triggers:
+    - type: ImageChange
+- apiVersion: image.openshift.io/v1
+  kind: ImageStream
+  metadata:
+    labels:
+      app: ${NAME}
+      app.kubernetes.io/component: ${NAME}
+      app.kubernetes.io/instance: ${NAME}
+    name: ${NAME}
+- apiVersion: route.openshift.io/v1
+  kind: Route
+  metadata:
+    labels:
+      app: ${NAME}
+      app.kubernetes.io/component: ${NAME}
+      app.kubernetes.io/instance: ${NAME}
+    name: ${NAME}
+  spec:
+    port:
+      targetPort: 8080-tcp
+    to:
+      kind: Service
+      name: ${NAME}
+      weight: 100
+    wildcardPolicy: None
+- apiVersion: apps.openshift.io/v1
+  kind: Deployment
+  metadata:
+    labels:
+      app: ${NAME}
+      app.kubernetes.io/component: ${NAME}
+      app.kubernetes.io/instance: ${NAME}
+    name: ${NAME}
+  spec:
+    replicas: 1
+    selector:
+      deploymentconfig: ${NAME}
+    strategy:
+      type: Rolling
+    template:
+      metadata:
+        labels:
+          deploymentconfig: ${NAME}
+      spec:
+        containers:
+        - image: ${NAME}
+          imagePullPolicy: Always
+          name: ${NAME}
           ports:
-            - name: http
-              containerPort: 8081
-              protocol: TCP
-          resources:
-            limits:
-              memory: "1024Mi"
-              cpu: "500m"
----
-kind: Service
-apiVersion: v1
-metadata:
-  name: my-java-quarkus-svc
-spec:
-ports:
-  - name: http-8081
-    port: 8081
-    protocol: TCP
-    targetPort: 8081
-selector:
-  app: java-quarkus-app
+          - containerPort: 8080
+            protocol: TCP
+          - containerPort: 8443
+            protocol: TCP
+        restartPolicy: Always
+    triggers:
+    - type: ConfigChange
+    - imageChangeParams:
+        automatic: true
+        containerNames:
+        - ${NAME}
+        from:
+          kind: ImageStreamTag
+          name: ${NAME}:latest
+      type: ImageChange
+- apiVersion: v1
+  kind: Service
+  metadata:
+    labels:
+      app: ${NAME}
+      app.kubernetes.io/component: ${NAME}
+      app.kubernetes.io/instance: ${NAME}
+    name: ${NAME}
+  spec:
+    ports:
+    - name: 8080-tcp
+      port: 8080
+      protocol: TCP
+      targetPort: 8080
+    - name: 8443-tcp
+      port: 8443
+      protocol: TCP
+      targetPort: 8443
+    selector:
+      deploymentconfig: ${NAME}
+    type: ClusterIP
+parameters:
+- description: Name that will be given to all the resources
+  displayName: Name
+  name: NAME
+  required: true
+  value: quarkusapp
