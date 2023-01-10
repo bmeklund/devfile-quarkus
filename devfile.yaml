@@ -77,7 +77,7 @@ commands:
         kind: run
         isDefault: true
       workingDir: ${PROJECT_SOURCE}
- - id: build-image
+  - id: build-image
     apply:
       component: image-build
   - id: deployk8s
