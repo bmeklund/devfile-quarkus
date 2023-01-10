@@ -42,12 +42,13 @@ components:
     volume:
       size: 3Gi
   - name: image-build
-    image:
-      imageName: quarkus-image:latest
-      dockerfile:
-        uri: docker/Dockerfile
-        buildContext: .
-        rootRequired: false
+    container:
+      image:
+        dockerfile:
+          uri: docker/Dockerfile
+          buildContext: .
+          rootRequired: false
+        imageName: quarkus-image:latest     
   - name: kubernetes-deploy
     attributes:
       deployment/replicas: 1
