@@ -14,11 +14,10 @@ metadata:
 projects:
   - name: quarkus-devfile
     git:
-      checkoutFrom:
-        revision: feature-db
       remotes:
         origin: https://github.com/bmeklund/devfile-quarkus
-    name: [name]
+      checkoutFrom:
+        revision: feature-db
 components:
   - name: dev
     container:
