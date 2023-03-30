@@ -11,11 +11,14 @@ metadata:
     - Quarkus
   projectType: Quarkus
   language: Java
-starterProjects:
+projects:
   - name: quarkus-devfile
     git:
+      checkoutFrom:
+        revision: feature-db
       remotes:
         origin: https://github.com/bmeklund/devfile-quarkus
+    name: [name]
 components:
   - name: dev
     container:
