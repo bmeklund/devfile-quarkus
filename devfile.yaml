@@ -71,7 +71,7 @@ components:
           path: /home/user/.m2
       endpoints:
         - name: http-quarkus
-          targetPort: 8080
+          targetPort: 8081
         - exposure: none
           name: debug
           targetPort: 5858
