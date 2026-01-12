@@ -73,7 +73,7 @@ components:
         - name: http-quarkus
           targetPort: 8081
         - exposure: none
-          name: debug
+          name: debug-quarkus
           targetPort: 5858
       env:
         - name: DEBUG_PORT
